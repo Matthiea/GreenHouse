@@ -44,9 +44,40 @@ pub mod dht11 {
     }
 
     // function used for get the two f32
-    fn IEEE_754(bits: Vec<bool>) -> [f32; 2] {
+    fn IEEE_754(mut bits: Vec<bool>) -> [f32; 2] {
         let mut temp: f32 = 0.0;
         let mut umidy: f32 = 0.0;
+
+        loop {
+            let mut y: i32 = 8;
+
+            if temp == 0.0 {
+                for _i in 0..16 {
+                    temp += match bits[0] {
+                        true => f32::powi(2.0, y),
+
+                        false => 0.0,
+                    };
+
+                    y -= 1;
+                    bits.remove(0);
+                }
+            } else if umidy == 0.0 {
+                for _i in 0..16 {
+                    umidy += match bits[0] {
+                        true => f32::powi(2.0, y),
+
+                        false => 0.0,
+                    };
+
+                    y -= 1;
+
+                    bits.remove(0);
+                }
+            } else {
+                break;
+            }
+        }
 
         return [temp, umidy];
     }
