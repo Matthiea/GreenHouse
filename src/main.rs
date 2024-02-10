@@ -8,4 +8,12 @@ mod lib {
 
 use lib::dht::dht11::get_data;
 
-fn main() {}
+fn main() {
+    loop {
+        let x = get_data(60).unwrap();
+        let y = x[0];
+        let z = x[1];
+
+        println!("temp:{}, humidity: {}", y, z);
+    }
+}
