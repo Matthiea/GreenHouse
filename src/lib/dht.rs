@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub mod dht11 {
 
     use std::{
@@ -17,22 +19,20 @@ pub mod dht11 {
             pin.set_direction(Direction::Out).unwrap();
 
             pin.set_value(0);
-            sleep(Duration::from_micros(20));
+            sleep(Duration::from_millis(20));
             pin.set_value(1);
             sleep(Duration::from_micros(40));
 
             pin.set_direction(Direction::In).unwrap();
             pin.set_edge(sysfs_gpio::Edge::FallingEdge);
 
-            if pin.get_value().unwrap() == 0 {
-                sleep(Duration::from_micros(160));
-                raw = get_bit(pin);
-                data = IEEE_754(raw);
-                return Ok(());
-            } else {
-                return Err(sysfs_gpio::Error::Unexpected(
-                    "Errore nella lettura dei dati".to_string(),
-                ));
+            loop {
+                if pin.get_value().unwrap() == 1 {
+                    sleep(Duration::from_micros(160));
+                    raw = get_bit(pin);
+                    data = IEEE_754(raw);
+                    return Ok(());
+                }
             }
         });
 
