@@ -7,7 +7,7 @@ pub mod dht11 {
         time::{Duration, Instant},
     };
 
-    use sysfs_gpio::{Direction, Pin};
+    use sysfs_gpio::{Direction, Error, Pin};
 
     pub fn get_data(pin_num: u64) -> Option<[f32; 2]> {
         let pin = Pin::new(pin_num);
@@ -24,16 +24,13 @@ pub mod dht11 {
             sleep(Duration::from_micros(40));
 
             pin.set_direction(Direction::In).unwrap();
-            pin.set_edge(sysfs_gpio::Edge::FallingEdge);
 
-            loop {
-                if pin.get_value().unwrap() == 1 {
-                    sleep(Duration::from_micros(160));
-                    raw = get_bit(pin);
-                    data = IEEE_754(raw);
-                    return Ok(());
-                }
+            if pin.get_value().unwrap() == 0 {
+                sleep(Duration::from_micros(160));
+                raw = get_bit(pin);
+                data = IEEE_754(raw);
             }
+            return Ok(());
         });
 
         if !data.is_empty() {
@@ -86,19 +83,18 @@ pub mod dht11 {
         let mut bit: Vec<bool> = Vec::new();
 
         while bit.len() <= 40 {
-            let start = Instant::now();
+            sleep(Duration::from_micros(50));
 
-            if start.elapsed() >= Duration::from_micros(50) && pin.get_value().unwrap() == 0 {
-                let start_bit = Instant::now();
-                if pin.get_value().unwrap() == 0 && start_bit.elapsed() >= Duration::from_micros(70)
-                {
+            if pin.get_value().unwrap() == 1 {
+                sleep(Duration::from_micros(50));
+
+                if pin.get_value().unwrap() == 0 {
                     bit.push(true);
-                } else if pin.get_value().unwrap() == 0
-                    && start_bit.elapsed() >= Duration::from_micros(26)
-                {
+                } else {
                     bit.push(false);
                 }
             }
+            sleep(Duration::from_micros(20));
         }
         return bit;
     }
