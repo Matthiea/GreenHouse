@@ -88,12 +88,12 @@ pub mod dht11 {
         while bit.len() <= 40 {
             let start = Instant::now();
 
-            if start.elapsed() >= Duration::from_micros(50) && pin.get_value().unwrap() == 1 {
+            if start.elapsed() >= Duration::from_micros(50) && pin.get_value().unwrap() == 0 {
                 let start_bit = Instant::now();
-                if pin.get_value().unwrap() == 1 && start_bit.elapsed() >= Duration::from_micros(70)
+                if pin.get_value().unwrap() == 0 && start_bit.elapsed() >= Duration::from_micros(70)
                 {
                     bit.push(true);
-                } else if pin.get_value().unwrap() == 1
+                } else if pin.get_value().unwrap() == 0
                     && start_bit.elapsed() >= Duration::from_micros(26)
                 {
                     bit.push(false);
